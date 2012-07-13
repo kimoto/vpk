@@ -7,13 +7,16 @@ What is VPK
 VPK is "Valve Pak". 
 https://developer.valvesoftware.com/wiki/VPK
 
+Install
+===
+  gem install vpk
+
 Usage
 ===
 extract from your vpk file
- require 'vpk'
- VPK::VPKFile.new("./path_to.vpk").extract_to("./")
+  require 'vpk'
+  VPK::VPKFile.new("./path_to.vpk").extract_to("./")
 
 archive from your directory
- require 'vpk'
- VPK::VPKFile.archive("./path_to_dir").write_to("./archive.vpk")
-
+  require 'vpk'
+  VPK::VPKFile.archive("./path_to_dir").write_to("./archive.vpk")
