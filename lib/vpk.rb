@@ -31,7 +31,7 @@ module VPK
 
     def self.load_from(path)
       entry = VPKDirectoryEntry.new
-      entry.payload = File.read(path)
+      entry.payload = File.binread(path)
       entry.full_path = path
       entry
     end
@@ -47,9 +47,6 @@ module VPK
     def full_path=(path)
       (path, file) = File.split(path)
       ext = File.extname(file)
-      if path == "."
-        path = ""
-      end
 
       @path = path.gsub(/^\.\.?\//, "")
       @extension = ext.gsub(/^./, "")
@@ -62,7 +59,6 @@ module VPK
     end
 
     def valid?
-      puts @payload
       @crc == Zlib.crc32(@payload)
     end
 
@@ -111,7 +107,7 @@ module VPK
           @@logger.info "try to read #{entry.full_path} (#{entry.entry_length} bytes)"
           entry.read_payload(io, end_of_header + @header.directory_length)
           unless entry.valid?
-            @@logger.error "crc is invalid: #{entry.crc.inspect}"
+            @@logger.error "crc is invalid: @entry.payload:#{Zlib.crc32(entry.payload)} != @crc:#{entry.crc.inspect}"
             raise VPKFileInvalidCRCError
           end
           @@logger.info "done"
@@ -179,7 +175,7 @@ module VPK
         next if File.directory?(f)
         entry = VPKDirectoryEntry.new
         entry.full_path = f.gsub(/^#{target_dir}(\/)?/, "")
-        entry.payload = File.read(f)
+        entry.payload = File.binread(f)
         vpk.dir_entries << entry
       }
       vpk
@@ -237,7 +233,7 @@ module VPK
 
         while true
           path = read_string(io)
-          @@logger.debug "path = #{path.inspect}"
+          @@logger.debug "path = #{path.inspect} (#{path.unpack('H*')})"
           break if path == ""
 
           while true
@@ -265,7 +261,12 @@ module VPK
 
         path_map.each{ |path, entries|
           @@logger.debug "write path: #{path.inspect}"
-          write_string(io, path)
+          if path == "."
+            write_string(io, " ")
+          else
+            write_string(io, path)
+          end
+
           entries.each{ |entry|
             write_string(io, entry.file)
 

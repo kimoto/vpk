@@ -20,3 +20,9 @@ Archive your directory
   require 'vpk'
   VPK::VPKFile.archive("./path_to_dir").write_to("./archive.vpk")
 
+= Command Line Utility
+ $ vpk
+ vpk [options] <dirname or vpkfile>
+   -c                               create archive
+   -x                               extract mode
+

@@ -12,11 +12,15 @@ opt.on("-c", "create archive"){ |v| options[:mode] = :archive }
 opt.on("-x", "extract mode"){ |v| options[:mode] = :extract }
 opt.parse! ARGV
 
-VPK::VPKFile.logger = Logger.new(STDERR)
+#VPK::VPKFile.logger = Logger.new(STDERR)
 
 case options[:mode]
 when :archive
   path = ARGV.shift
+
+  # trim last slashes
+  path = path.gsub(/(\/)+$/, "")
+
   if File.directory? path
     after_path = path + ".vpk"
     if File.exists? after_path
@@ -40,7 +44,6 @@ when :extract
     exit(1)
   end
 else
-  STDERR.puts "illegal argument error!: #{options[:mode].inspect}"
   puts opt.help
   exit(1)
 end
