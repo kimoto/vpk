@@ -3,6 +3,7 @@ require 'logger'
 require 'zlib'
 require 'find'
 require 'stringio'
+require 'fileutils'
 
 module VPK
   class VPKHeader
@@ -46,6 +47,9 @@ module VPK
     def full_path=(path)
       (path, file) = File.split(path)
       ext = File.extname(file)
+      if path == "."
+        path = ""
+      end
 
       @path = path.gsub(/^\.\.?\//, "")
       @extension = ext.gsub(/^./, "")
@@ -58,6 +62,7 @@ module VPK
     end
 
     def valid?
+      puts @payload
       @crc == Zlib.crc32(@payload)
     end
 
@@ -257,6 +262,7 @@ module VPK
       total_offset = 0
       to_file_struct_tree.each{ |extension, path_map|
         write_string(io, extension)
+
         path_map.each{ |path, entries|
           @@logger.debug "write path: #{path.inspect}"
           write_string(io, path)
